@@ -2,6 +2,40 @@ from shutil import move
 from os import makedirs, path, listdir
 from time import sleep
 
+def move_big_files(dir):
+    files = listdir(dir)
+    for file in files:
+        file_path = path.join(dir, file)
+        if path.isfile(file_path):
+            name, extension = path.splitext(file)
+            extension = extension.lower()
+
+            if extension in file_types:
+                destiny = path.join(dir, file_types[extension])
+            else:
+                destiny = path.join(dir, 'Outros', file)
+
+            move(path.join(dir, file), destiny)
+            sleep(2)
+            try:
+                print(f'\n\033[92mArquivo {file} movido para {file_types[extension]}.\033[0m\n')
+            except KeyError:
+                print(f'\n\033[38;5;208mArquivo {file} movido para o diretório Outros\033[0m\n')
+
+    print('\033[94mTODOS OS ARQUIVOS FORAM MOVIDOS COM SUCESSO!\033[0m')
+
+def detect_new_files(dir):
+    last_files = set(listdir(dir))
+    while True:
+        actual_files = set(listdir(dir))
+        new_file = actual_files - last_files
+        
+        if new_file:
+            move_big_files(downloads_dir)
+        
+        last_files = actual_files
+        sleep(1)
+
 while True:
     downloads_dir = str(input('Digite o caminho do diretório de downloads: '))
     if downloads_dir == '':
@@ -55,23 +89,5 @@ for file_type in file_types.values():
     if not path.exists(dir):
         makedirs(dir)
 
-files = listdir(downloads_dir)
-for file in files:
-    file_path = path.join(downloads_dir, file)
-    if path.isfile(file_path):
-        name, extension = path.splitext(file)
-        extension = extension.lower()
-
-        if extension in file_types:
-            destiny = path.join(downloads_dir, file_types[extension])
-        else:
-            destiny = path.join(downloads_dir, 'Outros', file)
-
-        move(path.join(downloads_dir, file), destiny)
-        sleep(2)
-        try:
-            print(f'\n\033[92mArquivo {file} movido para {file_types[extension]}.\033[0m\n')
-        except KeyError:
-            print(f'\n\033[38;5;208mArquivo {file} movido para o diretório Outros\033[0m\n')
-
-print('\033[94mTODOS OS ARQUIVOS FORAM MOVIDOS COM SUCESSO!\033[0m')
+move_big_files(downloads_dir)
+detect_new_files(downloads_dir)
